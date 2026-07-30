@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ProductCard from "@/components/Product-Card";
+import FeaturedCard from "@/components/Featured-Card";
 
 export default function Home() {
   return (
@@ -51,9 +51,9 @@ export default function Home() {
         <h2 className="text-xl font-semibold">Featured Products</h2>
         <p className="text-gray-500 text-sm">Handpicked favorites for the modern barista.</p>
         <div className="mt-5 flex justify-between">
-          <ProductCard/>
-          <ProductCard/>
-          <ProductCard/>
+          <FeaturedCard/>
+          <FeaturedCard/>
+          <FeaturedCard/>
         </div>
       </div>
 

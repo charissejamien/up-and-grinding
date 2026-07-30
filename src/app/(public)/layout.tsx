@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "@/app/globals.css"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +25,9 @@ export default function RootLayout({
     >
       
       <body className="min-h-full flex flex-col">
+        <Header/>
         {children}
+        <Footer/>
       </body>
     </html>
   );
