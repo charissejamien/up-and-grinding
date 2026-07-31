@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import Image from "next/image";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -22,6 +24,18 @@ export default function RootLayout({
       
     >
       <body className="min-h-full flex flex-col">
+        <header>
+          <div className="py-5 px-10 flex items-center justify-between xl:pr-30">
+            <Image src={'/logo.png'} alt="logo" width={200} height={200}/>
+            <div className="flex gap-10 font-semibold text-foreground/90">
+                <Link href={'/admin/dashboard'}>Dashboard</Link>
+                <Link href={'/admin/products'}>Products</Link>
+                <Link href={'/admin/orders'}>Orders</Link>
+                <Link href={'/'}>Customers</Link>
+            </div>
+            <Link href={'/login'}>Logout</Link>
+          </div>
+        </header>
         {children}
       </body>
     </html>

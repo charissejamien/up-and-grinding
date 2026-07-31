@@ -22,7 +22,7 @@ export default function RootLayout({
       
     >
       
-      <body className="min-h-full flex flex-col">
+      <body className={cn("min-h-full flex flex-col font-sans", geist.variable)}>
         {children}
       </body>
     </html>
