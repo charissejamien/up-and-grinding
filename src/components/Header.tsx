@@ -7,7 +7,7 @@ export default function Header() {
             <Image src={'/logo.png'} alt="logo" width={200} height={200}></Image>
 
             <div className="flex gap-10 font-semibold text-foreground/90">
-                <Link href={'/page'}>Home</Link>
+                <Link href={'/'}>Home</Link>
                 <Link href={'/products'}>Products</Link>
             </div>
 

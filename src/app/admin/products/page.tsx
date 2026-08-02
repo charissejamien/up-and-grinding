@@ -1,4 +1,7 @@
-import AdminProductCard from "@/components/Admin-Product-Card";
+"use client"
+
+import AdminProductCard, { Product } from "@/components/Admin-Product-Card";
+
 import {
   Dialog,
   DialogClose,
@@ -21,17 +24,90 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+import { SaveProduct, GetProducts } from "./actions";
+import { useState } from "react";
 
 export default function AdminProducts() {
-  return (
-    <div className="w-[70%] mx-auto mt-20">
+
+  const queryClient = useQueryClient();
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: GetProducts,
+  });
+
+  const [name, setName] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState<string | null>(null)
+  const [stocks, setStocks] = useState("");
+  const [status, setStatus] = useState<string | null>(null)
+
+  const saveProduct = useMutation({
+    mutationFn: (formData: FormData) => SaveProduct(formData),
+
+    onSuccess: () => {
+      toast.success("Product successfully added!")
+      queryClient.invalidateQueries({ queryKey: ["products"] })
       
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Admin Products Listing</h1>
+      setName("")
+      setDescription("")
+      setPrice("")
+      setStocks("")
+      setImage(null)
+      setCategory(null)
+      setStatus(null)
+    },
+
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to save product.")
+    },
+  })
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (!category || !status) {
+      toast.error("Please select both category and status.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("category", category);
+    formData.append("stocksAvailable", stocks);
+    formData.append("status", status);
+    
+    if (image) {
+      formData.append("image", image);
+    }
+
+    saveProduct.mutate(formData);
+  }
+
+  // Filter products for each section
+  const espressoMachines = products?.filter(
+    (p: Product) => p.category === "Espresso Machine"
+  );
+  const artisanalBeans = products?.filter(
+    (p: Product) => p.category === "Artisanal Bean"
+  );
+
+  return (
+    <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto mt-10 md:mt-16 mb-20">
+      
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b pb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Products Listing</h1>
         
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="w-full sm:w-72">
-            <Input placeholder="Search products..." />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <div className="w-full sm:w-64">
+            <Input placeholder="Search products..." className="w-full" />
           </div>
 
           <select className="h-10 px-3 py-2 text-sm rounded-md border border-input bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -40,96 +116,139 @@ export default function AdminProducts() {
             <option value="beans">Artisanal Beans</option>
           </select>
 
-        <Dialog>
-            <form>
-                <DialogTrigger render={<button className="bg-foreground text-white py-2 px-5 rounded-md text-sm">Add Product</button>} />
-                <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>Add a Product</DialogTitle>
-                </DialogHeader>
-                <FieldGroup>
-                    <Field>
-                        <Label htmlFor="name-1">Product Image</Label>
-                        <input type="file" name="" id="" className="h-55 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1"/>
-                    </Field>
-                    <Field>
-                        <Label htmlFor="name-1">Name</Label>
-                        <Input id="" name="" defaultValue="" />
-                    </Field>
-                     <Field>
-                        <Label htmlFor="name-1">Description</Label>
-                        <Textarea id="" name="" defaultValue="" />
-                    </Field>
-                    <FieldGroup className="flex flex-row">
-                        <Field>
-                            <Label htmlFor="username-1">Price</Label>
-                            <Input id="" name="" defaultValue="" />
-                        </Field>
-                        <Field>
-                            <Label htmlFor="username-1">Category</Label>
-                            <Select>
-                                <SelectTrigger className="w-full max-w-60">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                    <SelectLabel>Category</SelectLabel>
-                                    <SelectItem key={"espressoMachine"} value={"Espresso Machine"}>Espresso Machine</SelectItem>
-                                    <SelectItem key={"artisanalBean"} value={"Artisanal Bean"}>Artisanal Bean</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </Field>
-                    </FieldGroup>
-                    <FieldGroup className="flex flex-row">
-                        <Field>
-                            <Label htmlFor="username-1">Stocks Available</Label>
-                            <Input id="" name="" defaultValue="" />
-                        </Field>
-                        <Field>
-                            <Label htmlFor="username-1">Status</Label>
-                             <Select>
-                                <SelectTrigger className="w-full max-w-60">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                    <SelectLabel>Status</SelectLabel>
-                                    <SelectItem key={"active"} value={"Active"}>Active</SelectItem>
-                                    <SelectItem key={"inactive"} value={"Inactive"}>Inactive</SelectItem>
-                                    <SelectItem key={"outstock"} value={"Out of Stock"}>Out of Stock</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </Field>
-                    </FieldGroup>
+          <Dialog>
+            <DialogTrigger render={
+              <button className="bg-foreground text-background py-2 px-5 rounded-md text-sm font-medium whitespace-nowrap hover:opacity-90 transition-opacity">
+                Add Product
+              </button>
+            } />
+            <DialogContent className="sm:max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add a Product</DialogTitle>
+              </DialogHeader>
+              
+              <FieldGroup className="gap-4">
+                <Field>
+                  <Label>Product Image</Label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      setImage(e.target.files?.[0] ?? null)
+                    }}
+                    className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm"
+                  />
+                </Field>
+
+                <Field>
+                  <Label>Name</Label>
+                  <Input 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </Field>
+
+                <Field>
+                  <Label>Description</Label>
+                  <Textarea 
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </Field>
+
+                <FieldGroup className="flex flex-col sm:flex-row gap-3">
+                  <Field className="w-full sm:w-1/2">
+                    <Label>Price</Label>
+                    <Input 
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </Field>
+
+                  <Field className="w-full sm:w-1/2">
+                    <Label>Category</Label>
+                    <Select value={category ?? undefined} onValueChange={(val) => setCategory(val)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Category</SelectLabel>
+                          <SelectItem key={"espressoMachine"} value={"Espresso Machine"}>Espresso Machine</SelectItem>
+                          <SelectItem key={"artisanalBean"} value={"Artisanal Bean"}>Artisanal Bean</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
                 </FieldGroup>
-                <DialogFooter>
-                    <DialogClose render={<button>Cancel</button>} />
-                    <button type="submit">Save changes</button>
-                </DialogFooter>
-                </DialogContent>
-            </form>
-        </Dialog>
+
+                <FieldGroup className="flex flex-col sm:flex-row gap-3">
+                  <Field className="w-full sm:w-1/2">
+                    <Label>Stocks Available</Label>
+                    <Input 
+                      type="number"
+                      value={stocks}
+                      onChange={(e) => setStocks(e.target.value)}
+                    />
+                  </Field>
+
+                  <Field className="w-full sm:w-1/2">
+                    <Label>Status</Label>
+                    <Select value={status ?? undefined} onValueChange={(val) => setStatus(val)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Status</SelectLabel>
+                          <SelectItem key={"active"} value={"Active"}>Active</SelectItem>
+                          <SelectItem key={"inactive"} value={"Inactive"}>Inactive</SelectItem>
+                          <SelectItem key={"outstock"} value={"Out of Stock"}>Out of Stock</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </FieldGroup>
+              </FieldGroup>
+
+              <DialogFooter className="mt-6 flex flex-col-reverse sm:flex-row gap-2">
+                <DialogClose render={
+                  <button type="button" className="w-full sm:w-auto px-4 py-2 border rounded-md text-sm font-medium">
+                    Cancel
+                  </button>
+                } />
+                <button 
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saveProduct.isPending}
+                  className="w-full sm:w-auto bg-foreground text-background px-5 py-2 rounded-md text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+                >
+                  {saveProduct.isPending ? "Adding..." : "Add Product"}
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Espresso Machines</h2>
+      <section className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Espresso Machines</h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          <AdminProductCard />
-          <AdminProductCard />
-          <AdminProductCard />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {espressoMachines?.map((product: Product) => (
+            <AdminProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Artisanal Beans</h2>
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold mb-4">Artisanal Beans</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <AdminProductCard />
-          <AdminProductCard />
+          {artisanalBeans?.map((product: Product) => (
+            <AdminProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 
