@@ -44,13 +44,13 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-6">
               <Link 
-                href="/products" 
-                className="bg-white text-black hover:bg-white/90 text-center font-semibold py-3 px-6 rounded-md transition-colors"
+                href="/products#machines" 
+                className="bg-white text-black hover:bg-foreground hover:text-white text-center font-semibold py-3 px-6 rounded-md transition-colors"
               >
                 Start Grinding
               </Link>
               <Link 
-                href="/products" 
+                href="/products#beans" 
                 className="border border-white/40 hover:bg-white/10 text-center text-white font-medium py-3 px-6 rounded-md transition-colors"
               >
                 Find Your Roast

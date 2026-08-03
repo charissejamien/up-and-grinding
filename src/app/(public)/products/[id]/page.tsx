@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { GetProductById } from "@/app/admin/products/actions"
+import { getRelatedProducts } from "./actions"
 import { useParams } from "next/navigation"
+import ProductCard from "@/components/Product-Card"
 
 export default function ProductView() {
     const params = useParams()
@@ -12,6 +14,12 @@ export default function ProductView() {
     const { data: product, isLoading, error } = useQuery({
       queryKey: ["product", id],
       queryFn: () => GetProductById(id),
+      enabled: !!id,
+    })
+
+    const { data: relatedProducts = [] } = useQuery({
+      queryKey: ["related-products", id],
+      queryFn: () => getRelatedProducts(id),
       enabled: !!id,
     })
 
@@ -66,7 +74,7 @@ export default function ProductView() {
 
             <div className="flex flex-col justify-between h-full">
                 <div>
-                  {/* Category Pill */}
+
                   <span className="inline-block text-xs uppercase tracking-wider font-semibold px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground mb-3">
                     {product.category}
                   </span>
@@ -197,6 +205,23 @@ export default function ProductView() {
                 
             </div>
           </div>
+          
+          {relatedProducts.length > 0 && (
+            <div className="mt-20 pt-12 border-t border-border">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                  You Might Also Like
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {relatedProducts.slice(0, 3).map((item) => (
+                  <ProductCard key={item.id} product={item} />
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
     )
 }

@@ -6,6 +6,7 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/components/providers/query-provider";
 import { Toaster } from "react-hot-toast";
+import { CookieCartProvider } from "../context/CookieCartContext";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -27,12 +28,14 @@ export default function RootLayout({
     >
       
       <body className="min-h-full flex flex-col">
-        <Header/>
+        <CookieCartProvider>
         <QueryProvider>
+        <Header/>
         <Toaster/>
         {children}
         <Footer/>
         </QueryProvider>
+        </CookieCartProvider>
       </body>
     </html>
   );

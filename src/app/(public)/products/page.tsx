@@ -45,7 +45,7 @@ export default function Products() {
         </p>
       </div>
 
-      <section className="mt-10">
+      <section id="machines" className="mt-10 scroll-mt-24">
         <h2 className="text-xl font-semibold mb-6">Espresso Machines</h2>
         
         {espressoMachines.length === 0 ? (
@@ -63,7 +63,7 @@ export default function Products() {
         )}
       </section>
 
-      <section className="mt-14">
+      <section id="beans" className="mt-15 scroll-mt-24">
         <h2 className="text-xl font-semibold mb-6">Artisanal Beans</h2>
         
         {artisanalBeans.length === 0 ? (
