@@ -1,3 +1,7 @@
+"use client";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchDashboardData, updateOrderStatus } from "./actions";
 import {
   Table,
   TableBody,
@@ -5,133 +9,145 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-]
-
+} from "@/components/ui/table";
 
 export default function AdminDashboard() {
-    return(
-        <div className="w-[65%] mx-auto mt-20 flex flex-col gap-20">
+  const queryClient = useQueryClient();
 
-            <div className="flex gap-5">
-                <div className="bg-foreground text-white p-5 rounded-md pr-20 flex-1">
-                    <h2>Total Products</h2>
-                    <p className="text-5xl font-bold">12</p>
-                </div>
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: fetchDashboardData,
+  });
 
-                <div className="p-5 rounded-md pr-20 bg-white shadow-sm flex-1">
-                    <h2>Total Orders</h2>
-                    <p className="text-5xl font-bold">103</p>
-                </div>
+  const statusMutation = useMutation({
+    mutationFn: updateOrderStatus,
+    onSuccess: () => {
 
-                <div className="p-5 rounded-md pr-20 bg-white shadow-sm flex-1">
-                    <h2>Total Sales</h2>
-                    <p className="text-5xl font-bold">P203,013.00</p>
-                </div>
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+  });
 
-                <div className="p-5 rounded-md pr-20 bg-white shadow-sm flex-1">
-                    <h2>Total Customers</h2>
-                    <p className="text-5xl font-bold">54</p>
-                </div>
-            </div>
-            
-            <div className="flex gap-10">
-                <div className="bg-white p-5 rounded-md shadow-sm flex-1">
-                    <h2 className="font-semibold mb-3">Pending Orders</h2>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead className="w-[100px]">Invoice</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Method</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {invoices.map((invoice) => (
-                            <TableRow key={invoice.invoice}>
-                                <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                                <TableCell>{invoice.paymentStatus}</TableCell>
-                                <TableCell>{invoice.paymentMethod}</TableCell>
-                                <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    
-                </div>
+  if (isLoading) {
+    return <div className="w-full text-center py-20 text-muted-foreground">Loading dashboard...</div>;
+  }
 
-                <div className="bg-white p-5 rounded-md shadow-sm flex-1">
-                    <h2 className="font-semibold mb-3">Completed Orders</h2>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead className="w-[100px]">Invoice</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Method</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {invoices.map((invoice) => (
-                            <TableRow key={invoice.invoice}>
-                                <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                                <TableCell>{invoice.paymentStatus}</TableCell>
-                                <TableCell>{invoice.paymentMethod}</TableCell>
-                                <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    
-                </div>
-            </div>
+  if (isError) {
+    return <div className="w-full text-center py-20 text-destructive">Error: {(error as Error).message}</div>;
+  }
 
-            
+  const { metrics, pendingOrders, completedOrders } = data!;
+
+  return (
+    <div className="w-[85%] max-w-7xl mx-auto my-12 flex flex-col gap-10">
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-foreground text-background p-5 rounded-lg shadow-sm">
+          <h2 className="text-sm font-medium opacity-80">Total Products</h2>
+          <p className="text-4xl font-bold mt-2">{metrics.totalProducts}</p>
         </div>
-    );
+
+        <div className="bg-card border border-border p-5 rounded-lg shadow-sm">
+          <h2 className="text-sm font-medium text-muted-foreground">Total Orders</h2>
+          <p className="text-4xl font-bold text-foreground mt-2">{metrics.totalOrders}</p>
+        </div>
+
+        <div className="bg-card border border-border p-5 rounded-lg shadow-sm">
+          <h2 className="text-sm font-medium text-muted-foreground">Total Sales</h2>
+          <p className="text-4xl font-bold text-foreground mt-2">
+            ₱{metrics.totalSales.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+
+        <div className="bg-card border border-border p-5 rounded-lg shadow-sm">
+          <h2 className="text-sm font-medium text-muted-foreground">Total Customers</h2>
+          <p className="text-4xl font-bold text-foreground mt-2">{metrics.totalCustomers}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <div className="bg-card border border-border p-5 rounded-lg shadow-sm">
+          <h2 className="font-semibold text-lg mb-4 text-foreground">Pending Orders ({pendingOrders.length})</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order #</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pendingOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                    No pending orders
+                  </TableCell>
+                </TableRow>
+              ) : (
+                pendingOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">#{order.order_number}</TableCell>
+                    <TableCell className="capitalize">{order.status}</TableCell>
+                    <TableCell className="uppercase">{order.payment_method}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      ₱{Number(order.total_amount).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <button
+                        onClick={() =>
+                          statusMutation.mutate({ orderId: order.id, newStatus: "delivered" })
+                        }
+                        disabled={statusMutation.isPending}
+                        className="text-xs bg-foreground text-background px-2.5 py-1 rounded hover:opacity-90 disabled:opacity-50 cursor-pointer"
+                      >
+                        Complete
+                      </button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="bg-card border border-border p-5 rounded-lg shadow-sm">
+          <h2 className="font-semibold text-lg mb-4 text-foreground">Completed Orders ({completedOrders.length})</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order #</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {completedOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                    No completed orders
+                  </TableCell>
+                </TableRow>
+              ) : (
+                completedOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">#{order.order_number}</TableCell>
+                    <TableCell className="capitalize">{order.status}</TableCell>
+                    <TableCell className="uppercase">{order.payment_method}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      ₱{Number(order.total_amount).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+      </div>
+
+    </div>
+  );
 }

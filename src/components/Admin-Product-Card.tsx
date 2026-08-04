@@ -133,9 +133,6 @@ export default function AdminProductCard({ product }: AdminProductCardProps) {
                     <h3 className="text-sm font-semibold text-foreground truncate">
                         {product.name}
                     </h3>
-                    <span className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-secondary text-secondary-foreground whitespace-nowrap">
-                      {product.status}
-                    </span>
                   </div>
 
                   <p className="text-lg font-bold text-foreground">

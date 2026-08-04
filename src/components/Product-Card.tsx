@@ -95,7 +95,6 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           View Details
         </Link>
 
-        {/* Button with animated feedback state */}
         <button
           type="button"
           onClick={handleAddToCart}

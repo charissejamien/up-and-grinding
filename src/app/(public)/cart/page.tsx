@@ -162,38 +162,37 @@ export default function CartPage() {
           </div>
         </div>
 
-
         <div className="lg:col-span-5 xl:col-span-4">
-          <div className="bg-card border border-border rounded-xl p-6 shadow-sm sticky top-8">
-            <h2 className="text-lg font-bold text-foreground mb-4 pb-4 border-b border-border">
-              Order Summary
-            </h2>
+            <div className="bg-card border border-border rounded-xl p-6 shadow-sm sticky top-8">
+                <h2 className="text-lg font-bold text-foreground mb-4 pb-4 border-b border-border">
+                Order Summary
+                </h2>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Subtotal</span>
-                <span className="font-medium text-foreground">₱{subtotal.toLocaleString()}</span>
-              </div>
+                <div className="space-y-3 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                    <span>Subtotal</span>
+                    <span className="font-medium text-foreground">₱{subtotal.toLocaleString()}</span>
+                </div>
 
-              <div className="flex justify-between text-muted-foreground">
-                <span>Estimated Shipping</span>
-                <span className="font-medium text-foreground">₱{shippingFee.toLocaleString()}</span>
-              </div>
+                <div className="flex justify-between text-muted-foreground">
+                    <span>Estimated Shipping</span>
+                    <span className="font-medium text-foreground">₱{shippingFee.toLocaleString()}</span>
+                </div>
 
-              <div className="pt-3 border-t border-border flex justify-between items-center text-base font-bold text-foreground">
-                <span>Total Amount</span>
-                <span className="text-xl">₱{totalAmount.toLocaleString()}</span>
-              </div>
+                <div className="pt-3 border-t border-border flex justify-between items-center text-base font-bold text-foreground">
+                    <span>Total Amount</span>
+                    <span className="text-xl">₱{totalAmount.toLocaleString()}</span>
+                </div>
+                </div>
+
+                <Link
+                href="/checkout"
+                className="mt-6 w-full h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
+                >
+                <span>Proceed to Checkout</span>
+                <ArrowRight className="w-4 h-4" />
+                </Link>
             </div>
-
-            <Link
-              href="/checkout"
-              className="mt-6 w-full h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-md flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
-            >
-              <span>Proceed to Checkout</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
         </div>
 
       </div>

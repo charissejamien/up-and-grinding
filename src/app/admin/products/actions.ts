@@ -160,3 +160,104 @@ export async function GetProductById(id: string) {
 
   return data
 }
+
+// Categories
+export interface Category {
+  id: string;
+  name: string;
+  product_count?: number;
+}
+
+export async function GetCategories(): Promise<Category[]> {
+  const supabase = await createClient();
+
+  const { data: categories, error: catError } = await supabase
+    .from("categories")
+    .select("id, name")
+    .order("name", { ascending: true });
+
+  if (catError) throw new Error(catError.message);
+
+  const categoriesWithCounts = await Promise.all(
+    (categories || []).map(async (cat) => {
+      const { count, error } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("category", cat.name);
+
+      if (error) throw new Error(error.message);
+
+      return {
+        id: cat.id,
+        name: cat.name,
+        product_count: count || 0,
+      };
+    })
+  );
+
+  return categoriesWithCounts;
+}
+
+
+export async function SaveCategory(name: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .insert([{ name }])
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function UpdateCategory(id: string, newName: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .update({ name: newName })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function DeleteCategory(categoryId: string) {
+  const supabase = await createClient();
+
+  const { data: category, error: catError } = await supabase
+    .from("categories")
+    .select("name")
+    .eq("id", categoryId)
+    .single();
+
+  if (catError) throw new Error(catError.message);
+
+  if (category) {
+
+    const { count, error: countError } = await supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("category", category.name);
+
+    if (countError) throw new Error(countError.message);
+
+    if (count && count > 0) {
+      throw new Error(
+        `Cannot delete "${category.name}": ${count} product(s) are currently assigned to it.`
+      );
+    }
+  }
+
+  const { error } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", categoryId);
+
+  if (error) throw new Error(error.message);
+  return true;
+}
