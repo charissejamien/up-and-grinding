@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchDashboardData, updateOrderStatus } from "./actions";
 import {
@@ -10,25 +12,50 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const queryClient = useQueryClient();
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("isLoggedIn");
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, router]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: fetchDashboardData,
+    enabled: isAuthenticated,
   });
 
   const statusMutation = useMutation({
     mutationFn: updateOrderStatus,
     onSuccess: () => {
-
       queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
     },
   });
 
-  if (isLoading) {
-    return <div className="w-full text-center py-20 text-muted-foreground">Loading dashboard...</div>;
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    setIsAuthenticated(false);
+    router.push("/login");
+  };
+
+  if (!isAuthenticated || isLoading) {
+    return (
+      <div className="w-full text-center py-20 text-muted-foreground flex justify-center items-center gap-2">
+        <Loader2 className="w-5 h-5 animate-spin" /> Loading dashboard...
+      </div>
+    );
   }
 
   if (isError) {
@@ -39,6 +66,18 @@ export default function AdminDashboard() {
 
   return (
     <div className="w-[85%] max-w-7xl mx-auto my-12 flex flex-col gap-10">
+      <div className="flex items-center justify-between pb-4 border-b border-border">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage storefront metrics and orders</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 text-xs font-semibold px-4 py-2 rounded-md transition-colors cursor-pointer"
+        >
+          Logout
+        </button>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-foreground text-background p-5 rounded-lg shadow-sm">
