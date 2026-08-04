@@ -32,7 +32,7 @@ export default function RootLayout({
                 <Link href={'/admin/dashboard'}>Dashboard</Link>
                 <Link href={'/admin/products'}>Products</Link>
                 <Link href={'/admin/orders'}>Orders</Link>
-                <Link href={'/'}>Customers</Link>
+                <Link href={'/admin/customers'}>Customers</Link>
             </div>
             <Link href={'/login'}>Logout</Link>
           </div>

@@ -6,10 +6,15 @@ import { GetProductById } from "@/app/admin/products/actions"
 import { getRelatedProducts } from "./actions"
 import { useParams } from "next/navigation"
 import ProductCard from "@/components/Product-Card"
+import { useCookieCart } from "@/app/context/CookieCartContext"
+import { Check, ShoppingCart } from "lucide-react"
 
 export default function ProductView() {
     const params = useParams()
     const id = params?.id as string
+    const { addToCart } = useCookieCart()
+
+    const [isAdded, setIsAdded] = useState(false)
 
     const { data: product, isLoading, error } = useQuery({
       queryKey: ["product", id],
@@ -53,6 +58,26 @@ export default function ProductView() {
     }
 
     const isBean = product.category === "Artisanal Bean"
+
+    const handleAddToCart = () => {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        category: product.category,
+        quantity: quantity,
+        stocks_available: product.stocks_available,
+        selected_options: isBean
+          ? { weight, profile, grinding }
+          : null,
+      })
+
+      setIsAdded(true)
+      setTimeout(() => {
+        setIsAdded(false)
+      }, 1500)
+    }
 
     return (
         <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 mx-auto mt-6 md:mt-12 mb-20">
@@ -189,17 +214,25 @@ export default function ProductView() {
 
                     <button 
                         type="button"
-                        disabled={product.stocks_available <= 0}
-                        onClick={() => {
-                          console.log("Added to cart:", {
-                            product,
-                            quantity,
-                            options: isBean ? { weight, profile, grinding } : null
-                          })
-                        }}
-                        className="flex-1 h-12 bg-foreground hover:bg-foreground/90 disabled:opacity-40 text-background font-medium rounded-md px-6 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-[0.99]"
+                        disabled={product.stocks_available <= 0 || isAdded}
+                        onClick={handleAddToCart}
+                        className={`flex-1 h-12 font-medium rounded-md px-6 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-[0.99] ${
+                          isAdded
+                            ? "bg-emerald-600 text-white"
+                            : "bg-foreground hover:bg-foreground/90 text-background disabled:opacity-40"
+                        }`}
                     >
-                        {product.stocks_available > 0 ? "Add to Cart" : "Out of Stock"}
+                        {isAdded ? (
+                          <>
+                            <Check size={18} className="animate-in zoom-in" />
+                            Added to Cart!
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart size={18} />
+                            {product.stocks_available > 0 ? "Add to Cart" : "Out of Stock"}
+                          </>
+                        )}
                     </button>
                 </div>
                 

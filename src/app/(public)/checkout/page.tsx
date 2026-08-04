@@ -244,7 +244,6 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
-                  placeholder="Juan Dela Cruz"
                   value={formData.customerName}
                   onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -258,7 +257,6 @@ export default function CheckoutPage() {
                 <input
                   type="email"
                   required
-                  placeholder="juan@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -273,7 +271,6 @@ export default function CheckoutPage() {
               <input
                 type="tel"
                 required
-                placeholder="+63 912 345 6789"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -287,7 +284,6 @@ export default function CheckoutPage() {
               <textarea
                 required
                 rows={3}
-                placeholder="House/Unit #, Street, Barangay, City, Province, Postal Code"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
@@ -303,9 +299,9 @@ export default function CheckoutPage() {
 
             <div className="space-y-3">
               {[
-                { id: "cod", label: "Cash on Delivery (COD)", desc: "Pay in cash upon delivery arrival." },
-                { id: "e-wallet", label: "E-Wallet (GCash / Maya)", desc: "Payment details provided upon order confirmation." },
-                { id: "bank-transfer", label: "Direct Bank Transfer", desc: "Bank details provided upon placement." },
+                { id: "cod", label: "Cash on Delivery (COD)"},
+                { id: "e-wallet", label: "E-Wallet (GCash / Maya)"},
+                { id: "bank-transfer", label: "Direct Bank Transfer"},
               ].map((method) => (
                 <label
                   key={method.id}
@@ -323,7 +319,6 @@ export default function CheckoutPage() {
                   />
                   <div>
                     <p className="text-sm font-semibold text-foreground">{method.label}</p>
-                    <p className="text-xs text-muted-foreground">{method.desc}</p>
                   </div>
                 </label>
               ))}
@@ -334,7 +329,6 @@ export default function CheckoutPage() {
             <h2 className="text-lg font-bold text-foreground">3. Special Instructions (Optional)</h2>
             <textarea
               rows={2}
-              placeholder="Landmarks, gate codes, or special delivery notes..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
