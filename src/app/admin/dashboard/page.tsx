@@ -44,11 +44,6 @@ export default function AdminDashboard() {
     },
   });
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    setIsAuthenticated(false);
-    router.push("/login");
-  };
 
   if (!isAuthenticated || isLoading) {
     return (
@@ -71,12 +66,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage storefront metrics and orders</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 text-xs font-semibold px-4 py-2 rounded-md transition-colors cursor-pointer"
-        >
-          Logout
-        </button>
+
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
